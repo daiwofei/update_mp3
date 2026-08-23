@@ -205,7 +205,7 @@
         <span class="eyebrow">BAIDU MAP CONFIGURATION</span><h2>配置百度地图</h2>
         <p class="modal-lead">填写百度地图开放平台“浏览器端”应用的访问应用 AK。凭证仅保存在当前浏览器。</p>
         <label class="field"><span>浏览器端 AK</span><input id="baiduMapAk" autocomplete="off" placeholder="请输入百度地图浏览器端 AK" /></label>
-        <div class="tts-notice"><span>i</span><p><strong>Referer 白名单</strong> 请在百度地图开放平台中添加当前网站域名；正式部署时建议由服务器注入 AK，不要写入公开仓库。</p></div>
+        <div class="tts-notice"><span>i</span><p><strong>应用要求</strong> AK 必须属于“浏览器端”应用，应用和 WebGL JS API 服务必须处于启用状态，并将当前 HTTP 域名加入 Referer 白名单。不要通过 file:// 直接打开。</p></div>
         <div class="modal-actions"><button class="secondary-btn" data-close="mapConfigModal">取消</button><button class="primary-btn" id="saveMapConfig">保存并重新载入</button></div>
       </div>
     </div>

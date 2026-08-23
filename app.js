@@ -66,6 +66,15 @@ function showMapSetup(message='需要配置百度地图浏览器端 AK 才能载
   $$('.map-config-trigger').forEach(button=>button.onclick=()=>openMapConfig());
 }
 
+function showLocalServerGuide(){
+  const guide='<div class="map-load-fallback local-server-guide"><div><span class="protocol-badge">FILE://</span><strong>请通过本地服务器打开网页</strong><small>百度地图不支持直接双击 HTML 文件运行。请在项目目录启动 HTTP 服务，再访问 localhost。</small><code>python3 -m http.server 4173</code><button class="primary-btn copy-server-command">复制启动命令</button></div></div>';
+  ['chinaMap','wuhanMap'].forEach(id=>$(`#${id}`).innerHTML=guide);
+  $$('.copy-server-command').forEach(button=>button.onclick=async()=>{
+    try{await navigator.clipboard.writeText('python3 -m http.server 4173');showToast('已复制','请在项目目录的终端中运行该命令。')}
+    catch{showToast('启动命令','python3 -m http.server 4173')}
+  });
+}
+
 function openMapConfig(){
   $('#baiduMapAk').value=getMapConfig().ak; openModal('mapConfigModal');
 }
@@ -97,11 +106,12 @@ function createDeviceMap(elementId,center,zoom,onMarkerClick){
 }
 
 async function initializeMaps(){
+  if(location.protocol==='file:'){showLocalServerGuide();return}
   try{
     await loadBaiduMap();
     geoMaps.map=createDeviceMap('chinaMap',[114.3120,30.5980],5,()=>navigate('city'));
     geoMaps.city=createDeviceMap('wuhanMap',[114.3225,30.5500],14,()=>navigate('building'));
-  }catch(error){if(getMapConfig().ak)showMapSetup('地图载入失败，请检查 AK、Referer 白名单和网络连接。')}
+  }catch(error){if(getMapConfig().ak)showMapSetup('地图载入失败：请确认应用没有被停用、已启用 WebGL JS API，并检查 AK、Referer 白名单和网络。')}
 }
 
 function renderDevices(){
