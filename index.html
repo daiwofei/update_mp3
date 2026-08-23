@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="华明新能源智能语音调度台" />
+    <title>智能语音调度台 · Huaming Renewables</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+          <div><strong>HUAMING</strong><small>RENEWABLES</small></div>
+        </div>
+
+        <nav class="nav" aria-label="主要导航">
+          <p class="nav-caption">工作空间</p>
+          <button class="nav-item active" data-view="map"><span class="icon">◎</span>地图索引<span class="status-dot map-dot"></span></button>
+          <button class="nav-item" data-view="overview"><span class="icon">⌂</span>总览</button>
+          <button class="nav-item" data-view="assets"><span class="icon">♫</span>语音素材<span class="nav-count" id="assetNavCount">6</span></button>
+          <button class="nav-item" data-view="planner"><span class="icon">≡</span>播放计划<span class="status-dot"></span></button>
+          <p class="nav-caption spaced">设备服务</p>
+          <button class="nav-item disabled" title="第二阶段开放"><span class="icon">◇</span>终端设备<span class="soon">即将开放</span></button>
+          <button class="nav-item disabled" title="第二阶段开放"><span class="icon">↗</span>下发记录</button>
+        </nav>
+
+        <div class="sidebar-card">
+          <div class="card-icon">◈</div>
+          <strong>第一阶段工作台</strong>
+          <p>准备语音内容并编排播放计划，设备同步将在下一阶段接入。</p>
+          <div class="progress"><span></span></div>
+          <small>产品建设进度 · 2/5</small>
+        </div>
+
+        <div class="profile">
+          <div class="avatar">管</div>
+          <div><strong>系统管理员</strong><small>内容运营中心</small></div>
+          <button aria-label="更多账户操作">•••</button>
+        </div>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <button class="mobile-menu" id="mobileMenu" aria-label="打开菜单">☰</button>
+          <div class="breadcrumb" id="breadcrumb"><span>华明新能源</span><b>/</b><strong id="breadcrumbCurrent">地图索引</strong></div>
+          <div class="top-actions">
+            <div class="system-state"><i></i>系统运行正常</div>
+            <button class="icon-button" aria-label="帮助">?</button>
+            <button class="icon-button notification" aria-label="通知">♢<i></i></button>
+          </div>
+        </header>
+
+        <div class="content">
+          <section class="view active" id="mapView">
+            <div class="page-heading map-heading">
+              <div><span class="eyebrow">DEVICE MAP INDEX</span><h1>全国设备地图</h1><p>从区域到楼宇，快速定位并管理每一台智能语音终端。</p></div>
+              <div class="map-summary"><span><i></i> 1 个城市已接入</span><b>24</b><small>台终端设备</small></div>
+            </div>
+            <div class="map-stage national-stage">
+              <div class="map-stage-head"><div><strong>中国</strong><span>CHINA</span></div><div class="map-legend"><span><i class="online"></i>在线 8</span><span><i class="offline"></i>离线 16</span></div></div>
+              <div class="china-map real-map" id="chinaMap" role="application" aria-label="百度地图中国视图，武汉市坐标为北纬30.598度、东经114.312度"></div>
+              <button class="map-overlay-card national-location" id="openWuhan" aria-label="进入武汉市地图"><span class="location-beacon"><i></i></span><div><small>百度 BD-09 · 武汉市</small><strong>武汉市</strong><em>24 台设备 · 8 台在线</em></div><b>进入城市 →</b></button>
+              <div class="map-tip"><span>⌖</span> 点击地图上的城市坐标，进入城市级设备视图</div>
+            </div>
+          </section>
+
+          <section class="view" id="cityView">
+            <div class="level-toolbar"><button class="back-button" data-back="map">←</button><div><span class="eyebrow">CITY DEVICE MAP</span><h1>武汉市</h1><p>湖北省 · 已接入 1 个项目地点</p></div><div class="level-stats"><span><b>1</b> 项目地点</span><span><b>24</b> 终端设备</span><span><b class="green-text">8</b> 当前在线</span></div></div>
+            <div class="map-stage city-stage">
+              <div class="real-map" id="wuhanMap" role="application" aria-label="百度地图武汉市视图，显示武昌区九万里人才基地坐标"></div>
+              <button class="map-overlay-card site-location" id="openSite"><span class="location-beacon"><i></i></span><div><small>武昌区 · 项目坐标</small><strong>九万里人才基地</strong><em>24 台设备 · 8 台在线</em></div><b>查看楼宇 →</b></button>
+              <div class="coordinate-card"><span>当前视图中心</span><strong>30.5500°N, 114.3225°E</strong><small>BD-09 · 城市级视图</small></div>
+            </div>
+          </section>
+
+          <section class="view" id="buildingView">
+            <div class="level-toolbar"><button class="back-button" data-back="city">←</button><div><span class="eyebrow">BUILDING DIGITAL TWIN</span><h1>九万里人才基地</h1><p>武汉市武昌区 · 楼宇设备数字孪生</p></div><div class="level-stats"><span><b>12</b> 建筑楼层</span><span><b>24</b> 终端设备</span><span><b class="green-text">8</b> 当前在线</span></div></div>
+            <div class="building-layout">
+              <div class="building-scene">
+                <div class="scene-grid"></div><div class="scene-glow"></div>
+                <div class="tower" id="tower" aria-label="十二层设备楼宇"></div>
+                <div class="building-label"><span>BUILDING A</span><strong>人才基地 A 栋</strong><small>点击楼层中的设备节点进行管理</small></div>
+                <div class="scene-controls"><button id="rotateBuilding">↻</button><button id="resetBuilding">⌂</button></div>
+              </div>
+              <aside class="device-panel">
+                <div class="device-panel-head"><div><h2>楼层设备</h2><p>按楼层查看终端实时状态</p></div><span class="live-pill"><i></i> LIVE</span></div>
+                <div class="floor-filter"><button class="active" data-floor-filter="all">全部</button><button data-floor-filter="online">在线</button><button data-floor-filter="offline">离线</button></div>
+                <div class="device-list" id="deviceList"></div>
+              </aside>
+            </div>
+          </section>
+
+          <section class="view" id="overviewView">
+            <div class="page-heading"><div><span class="eyebrow">OPERATION CENTER</span><h1>早上好，欢迎回来</h1><p>这里是您的智能语音内容运营中心。</p></div></div>
+            <div class="stats-grid">
+              <article class="stat-card"><span class="stat-icon mint">♫</span><div><small>语音素材</small><strong id="overviewAssetCount">6</strong><p><em>+2</em> 本周新增</p></div></article>
+              <article class="stat-card"><span class="stat-icon blue">≡</span><div><small>播放计划</small><strong id="overviewPlanCount">1</strong><p>1 个草稿待处理</p></div></article>
+              <article class="stat-card"><span class="stat-icon amber">◷</span><div><small>累计时长</small><strong id="overviewDuration">01:35</strong><p>音频内容总时长</p></div></article>
+            </div>
+            <div class="welcome-panel">
+              <div><span class="eyebrow">QUICK START</span><h2>从一段清晰的声音开始</h2><p>上传已有 MP3，或把通知文案转换为语音，再将素材编排成可复用的播放计划。</p><button class="primary-btn" data-go="assets">开始准备素材 <span>→</span></button></div>
+              <div class="sound-visual" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            </div>
+          </section>
+
+          <section class="view" id="assetsView">
+            <div class="device-context" id="deviceContext"><div><span class="device-context-icon">◎</span><p><small>当前目标设备</small><strong id="currentDeviceName">尚未选择设备</strong></p></div><button data-go="map">重新选择</button></div>
+            <div class="page-heading">
+              <div><span class="eyebrow">AUDIO LIBRARY</span><h1>语音素材</h1><p>集中管理用于终端播放的语音内容，让每一次传达都清晰准确。</p></div>
+              <div class="heading-actions"><button class="secondary-btn" id="openTts"><span>✦</span> 文字转语音</button><button class="primary-btn" id="openUpload"><span>＋</span> 上传 MP3</button></div>
+            </div>
+
+            <div class="insight-strip">
+              <div class="insight-main"><span class="wave-icon">∿</span><div><strong id="assetCount">6 个素材</strong><p id="assetSummary">共 1 分 35 秒 · 2.7 MB</p></div></div>
+              <div class="mini-metric"><small>系统预置</small><strong id="presetCount">3</strong></div>
+              <div class="mini-metric"><small>我的上传</small><strong id="uploadCount">2</strong></div>
+              <div class="mini-metric"><small>TTS 生成</small><strong id="ttsCount">1</strong></div>
+            </div>
+
+            <div class="toolbar">
+              <div class="tabs" id="assetTabs"><button class="active" data-filter="all">全部素材</button><button data-filter="preset">系统预置</button><button data-filter="upload">我的上传</button><button data-filter="tts">TTS 生成</button></div>
+              <label class="search"><span>⌕</span><input id="assetSearch" type="search" placeholder="搜索名称或标签" /></label>
+            </div>
+
+            <div class="asset-table-wrap">
+              <table class="asset-table">
+                <thead><tr><th>语音名称</th><th>来源</th><th>时长</th><th>创建时间</th><th>状态</th><th></th></tr></thead>
+                <tbody id="assetList"></tbody>
+              </table>
+              <div class="empty-state" id="assetEmpty"><span>⌕</span><h3>没有找到相关素材</h3><p>换个关键词，或上传一条新语音。</p></div>
+            </div>
+          </section>
+
+          <section class="view" id="plannerView">
+            <div class="page-heading planner-heading">
+              <div><span class="eyebrow">PLAYLIST BUILDER</span><h1>播放计划编排</h1><p>拖拽调整播放顺序，安排一组清晰有序的语音任务。</p></div>
+              <div class="heading-actions"><span class="save-state" id="saveState">所有更改已保存</span><button class="secondary-btn" id="saveDraft">保存草稿</button><button class="primary-btn" id="publishPlan">发布计划 <span>→</span></button></div>
+            </div>
+
+            <div class="planner-meta">
+              <label><span>计划名称</span><input id="planName" value="园区日常安全播报" /></label>
+              <label><span>生效日期</span><input id="planDate" type="date" /></label>
+              <label><span>播放模式</span><select id="planMode"><option>按设定时间播放</option><option>按列表顺序播放</option></select></label>
+              <div class="plan-badge"><i></i><span>草稿</span></div>
+            </div>
+
+            <div class="planner-layout">
+              <aside class="source-panel">
+                <div class="panel-title"><div><span>素材库</span><small id="sourceCount">6 条可用</small></div><button data-go="assets">＋</button></div>
+                <label class="search compact"><span>⌕</span><input id="sourceSearch" placeholder="搜索素材" /></label>
+                <div class="source-list" id="sourceList"></div>
+              </aside>
+              <section class="queue-panel">
+                <div class="queue-header">
+                  <div><h2>待播放队列</h2><p><span id="queueCount">4</span> 条语音 · 拖拽卡片调整顺序</p></div>
+                  <button class="text-btn" id="clearQueue">清空队列</button>
+                </div>
+                <div class="timeline-head"><span>播放顺序</span><span>计划时间</span></div>
+                <div class="queue-list" id="queueList"></div>
+                <div class="queue-empty" id="queueEmpty"><span>♫</span><h3>播放队列还是空的</h3><p>从左侧素材库添加语音，开始编排计划。</p></div>
+                <button class="add-row" id="addFirstAsset">＋ 从素材库添加语音</button>
+              </section>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+
+    <div class="player-bar" id="playerBar">
+      <button class="player-play" id="playerToggle">▶</button>
+      <div class="player-info"><strong id="playerName">请选择一条语音</strong><small id="playerMeta">试听准备就绪</small></div>
+      <div class="player-track"><span id="playerCurrent">00:00</span><div><i id="playerProgress"></i></div><span id="playerDuration">00:00</span></div>
+      <button class="player-close" id="playerClose" aria-label="关闭播放器">×</button>
+      <audio id="audioElement"></audio>
+    </div>
+
+    <div class="modal" id="uploadModal" aria-hidden="true">
+      <div class="modal-card">
+        <button class="modal-close" data-close="uploadModal">×</button>
+        <span class="eyebrow">NEW AUDIO ASSET</span><h2>上传 MP3 素材</h2><p class="modal-lead">添加一段已经准备好的语音文件。</p>
+        <label class="dropzone" id="dropzone"><input type="file" id="fileInput" accept="audio/mpeg,.mp3" /><span class="upload-symbol">⇧</span><strong>拖入 MP3 文件，或点击选择</strong><small>单个文件不超过 20 MB</small><em id="selectedFile"></em></label>
+        <label class="field"><span>素材名称</span><input id="uploadName" placeholder="例如：每日安全提醒" /></label>
+        <div class="field-row"><label class="field"><span>分类</span><select id="uploadCategory"><option>安全播报</option><option>日常通知</option><option>设备提醒</option><option>其他</option></select></label><label class="field"><span>标签</span><input id="uploadTag" placeholder="例如：园区" /></label></div>
+        <div class="modal-actions"><button class="secondary-btn" data-close="uploadModal">取消</button><button class="primary-btn" id="confirmUpload">确认上传</button></div>
+      </div>
+    </div>
+
+    <div class="modal" id="ttsModal" aria-hidden="true">
+      <div class="modal-card tts-card">
+        <button class="modal-close" data-close="ttsModal">×</button>
+        <span class="eyebrow">TEXT TO SPEECH</span><h2>文字转语音</h2><p class="modal-lead">输入播报文案，快速生成标准清晰的语音素材。</p>
+        <label class="field"><span>素材名称</span><input id="ttsName" placeholder="例如：高温天气安全提醒" /></label>
+        <label class="field"><span>播报文案 <i id="charCount">0 / 300</i></span><textarea id="ttsText" maxlength="300" placeholder="请输入需要转换为语音的文字内容……"></textarea></label>
+        <div class="field-row"><label class="field"><span>发音人</span><select id="ttsVoice"><option>讯飞女声 · 温暖</option><option>讯飞男声 · 沉稳</option><option>讯飞女声 · 清晰</option></select></label><label class="field"><span>语速</span><select id="ttsSpeed"><option>标准</option><option>稍慢</option><option>稍快</option></select></label></div>
+        <div class="tts-notice"><span>i</span><p><strong>演示模式</strong> 当前使用浏览器语音进行试听，接入科大讯飞 API 后可生成并保存真实 MP3。</p></div>
+        <div class="modal-actions"><button class="secondary-btn" id="previewTts">▶ 试听文案</button><button class="primary-btn" id="createTts">保存为素材</button></div>
+      </div>
+    </div>
+
+    <div class="modal" id="mapConfigModal" aria-hidden="true">
+      <div class="modal-card">
+        <button class="modal-close" data-close="mapConfigModal">×</button>
+        <span class="eyebrow">BAIDU MAP CONFIGURATION</span><h2>配置百度地图</h2>
+        <p class="modal-lead">填写百度地图开放平台“浏览器端”应用的访问应用 AK。凭证仅保存在当前浏览器。</p>
+        <label class="field"><span>浏览器端 AK</span><input id="baiduMapAk" autocomplete="off" placeholder="请输入百度地图浏览器端 AK" /></label>
+        <div class="tts-notice"><span>i</span><p><strong>应用要求</strong> AK 必须属于“浏览器端”应用，应用和 WebGL JS API 服务必须处于启用状态，并将当前 HTTP 域名加入 Referer 白名单。不要通过 file:// 直接打开。</p></div>
+        <div class="modal-actions"><button class="secondary-btn" data-close="mapConfigModal">取消</button><button class="primary-btn" id="saveMapConfig">保存并重新载入</button></div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"><span>✓</span><div><strong>操作成功</strong><p></p></div></div>
+    <script src="baidu-map-config.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
