@@ -12,6 +12,13 @@ const initialQueue = [
   {id:'q3',assetId:'a4',time:'11:30'}, {id:'q4',assetId:'a6',time:'17:30'}
 ];
 
+const devices = Array.from({length:24},(_,index)=>({
+  id:`HM-WH-A-${String(index+1).padStart(3,'0')}`,
+  floor:12-Math.floor(index/2),
+  online:[0,1,4,7,10,13,18,22].includes(index),
+  name:`${12-Math.floor(index/2)}F-${index%2===0?'东侧':'西侧'}语音终端`
+}));
+
 const state = {
   assets: JSON.parse(localStorage.getItem('hm_assets') || 'null') || demoAssets,
   queue: JSON.parse(localStorage.getItem('hm_queue') || 'null') || initialQueue,
@@ -39,9 +46,27 @@ function showToast(title,message){
 
 function navigate(view){
   $$('.view').forEach(v=>v.classList.remove('active')); $(`#${view}View`).classList.add('active');
-  $$('.nav-item[data-view]').forEach(n=>n.classList.toggle('active',n.dataset.view===view));
-  $('#breadcrumbCurrent').textContent={overview:'总览',assets:'语音素材',planner:'播放计划编排'}[view];
+  $$('.nav-item[data-view]').forEach(n=>n.classList.toggle('active',n.dataset.view===view||(['city','building'].includes(view)&&n.dataset.view==='map')));
+  $('#breadcrumbCurrent').textContent={map:'全国设备地图',city:'武汉市',building:'九万里人才基地',overview:'总览',assets:'语音素材',planner:'播放计划编排'}[view];
   $('.sidebar').classList.remove('open');
+}
+
+function renderDevices(){
+  $('#tower').innerHTML=Array.from({length:12},(_,i)=>12-i).map(floor=>{
+    const floorDevices=devices.filter(d=>d.floor===floor);
+    return `<div class="floor" data-floor="${floor}"><span class="floor-label">${String(floor).padStart(2,'0')}F</span><div class="floor-devices">${floorDevices.map(d=>`<button class="device-node ${d.online?'online':''}" data-device="${d.id}" data-id="${d.id}" aria-label="打开设备 ${d.id}"></button>`).join('')}</div></div>`;
+  }).join('');
+  $('#deviceList').innerHTML=devices.map(d=>`<article class="device-card ${d.online?'online':'offline'}" data-device="${d.id}" data-status="${d.online?'online':'offline'}"><span class="device-status-icon">◉</span><div><strong>${d.id}</strong><small>${d.name}</small></div><span>${d.online?'在线':'离线'}</span></article>`).join('');
+  $$('[data-device]').forEach(el=>el.onclick=()=>selectDevice(el.dataset.device));
+}
+
+function selectDevice(id){
+  const device=devices.find(d=>d.id===id); if(!device)return;
+  localStorage.setItem('hm_selected_device',id);
+  $('#currentDeviceName').textContent=`${device.id} · 九万里人才基地 ${device.floor}F`;
+  $('#deviceContext').classList.add('selected');
+  navigate('assets');
+  showToast('已选择目标设备',`${device.id} · ${device.floor}F，您可以准备并编排语音。`);
 }
 
 function updateMetrics(){
@@ -115,6 +140,11 @@ function openModal(id){$(`#${id}`).classList.add('open');$(`#${id}`).setAttribut
 function closeModal(id){$(`#${id}`).classList.remove('open');$(`#${id}`).setAttribute('aria-hidden','true')}
 
 $$('.nav-item[data-view]').forEach(b=>b.onclick=()=>navigate(b.dataset.view)); $$('[data-go]').forEach(b=>b.onclick=()=>navigate(b.dataset.go));
+$('#openWuhan').onclick=()=>navigate('city'); $('#openSite').onclick=()=>navigate('building');
+$$('[data-back]').forEach(b=>b.onclick=()=>navigate(b.dataset.back));
+$$('[data-floor-filter]').forEach(b=>b.onclick=()=>{$$('[data-floor-filter]').forEach(x=>x.classList.toggle('active',x===b));$$('.device-card').forEach(card=>card.classList.toggle('hidden',b.dataset.floorFilter!=='all'&&card.dataset.status!==b.dataset.floorFilter))});
+let buildingRotated=false; $('#rotateBuilding').onclick=()=>{buildingRotated=!buildingRotated;$('#tower').style.transform=`translate(-50%,-50%) rotateY(${buildingRotated?14:-9}deg) rotateX(2deg)`};
+$('#resetBuilding').onclick=()=>{buildingRotated=false;$('#tower').style.transform='translate(-50%,-50%) rotateY(-9deg) rotateX(2deg)'};
 $('#mobileMenu').onclick=()=>$('.sidebar').classList.toggle('open');
 $('#assetTabs').onclick=e=>{if(!e.target.dataset.filter)return;state.filter=e.target.dataset.filter;$$('#assetTabs button').forEach(b=>b.classList.toggle('active',b===e.target));renderAssets()};
 $('#assetSearch').oninput=e=>{state.search=e.target.value;renderAssets()}; $('#sourceSearch').oninput=e=>{state.sourceSearch=e.target.value;renderSourceList()};
@@ -139,4 +169,5 @@ $('#playerToggle').onclick=()=>{const audio=$('#audioElement');if(audio.src){aud
 $('#audioElement').ontimeupdate=e=>{const a=e.target;$('#playerProgress').style.width=`${a.duration?a.currentTime/a.duration*100:0}%`;$('#playerCurrent').textContent=formatTime(a.currentTime)};
 $('#audioElement').onended=()=>$('#playerToggle').textContent='▶';
 
-renderAssets(); renderQueue(); updateMetrics();
+renderAssets(); renderQueue(); updateMetrics(); renderDevices();
+const selectedDevice=localStorage.getItem('hm_selected_device'); if(selectedDevice){const d=devices.find(x=>x.id===selectedDevice);if(d){$('#currentDeviceName').textContent=`${d.id} · 九万里人才基地 ${d.floor}F`;$('#deviceContext').classList.add('selected')}}

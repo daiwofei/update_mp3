@@ -20,8 +20,9 @@
 
         <nav class="nav" aria-label="主要导航">
           <p class="nav-caption">工作空间</p>
+          <button class="nav-item active" data-view="map"><span class="icon">◎</span>地图索引<span class="status-dot map-dot"></span></button>
           <button class="nav-item" data-view="overview"><span class="icon">⌂</span>总览</button>
-          <button class="nav-item active" data-view="assets"><span class="icon">♫</span>语音素材<span class="nav-count" id="assetNavCount">6</span></button>
+          <button class="nav-item" data-view="assets"><span class="icon">♫</span>语音素材<span class="nav-count" id="assetNavCount">6</span></button>
           <button class="nav-item" data-view="planner"><span class="icon">≡</span>播放计划<span class="status-dot"></span></button>
           <p class="nav-caption spaced">设备服务</p>
           <button class="nav-item disabled" title="第二阶段开放"><span class="icon">◇</span>终端设备<span class="soon">即将开放</span></button>
@@ -46,7 +47,7 @@
       <main class="main">
         <header class="topbar">
           <button class="mobile-menu" id="mobileMenu" aria-label="打开菜单">☰</button>
-          <div class="breadcrumb"><span>华明新能源</span><b>/</b><strong id="breadcrumbCurrent">语音素材</strong></div>
+          <div class="breadcrumb" id="breadcrumb"><span>华明新能源</span><b>/</b><strong id="breadcrumbCurrent">地图索引</strong></div>
           <div class="top-actions">
             <div class="system-state"><i></i>系统运行正常</div>
             <button class="icon-button" aria-label="帮助">?</button>
@@ -55,6 +56,57 @@
         </header>
 
         <div class="content">
+          <section class="view active" id="mapView">
+            <div class="page-heading map-heading">
+              <div><span class="eyebrow">DEVICE MAP INDEX</span><h1>全国设备地图</h1><p>从区域到楼宇，快速定位并管理每一台智能语音终端。</p></div>
+              <div class="map-summary"><span><i></i> 1 个城市已接入</span><b>24</b><small>台终端设备</small></div>
+            </div>
+            <div class="map-stage national-stage">
+              <div class="map-stage-head"><div><strong>中国</strong><span>CHINA</span></div><div class="map-legend"><span><i class="online"></i>在线 8</span><span><i class="offline"></i>离线 16</span></div></div>
+              <div class="china-map" role="img" aria-label="中国设备分布地图">
+                <svg class="china-shape" viewBox="0 0 900 610" aria-hidden="true">
+                  <defs><linearGradient id="mapFill" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#def3e6"/><stop offset="1" stop-color="#bbdfc8"/></linearGradient><filter id="mapShadow"><feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#153f28" flood-opacity=".12"/></filter></defs>
+                  <path filter="url(#mapShadow)" d="M87 248l42-26 34-55 61-13 28-45 65 3 42-36 62 27 54-12 37 28 64 6 34 45 79 7 38 41 72 25 4 45 51 30-18 48-61 15-28 47-72 6-39 56-61-6-40 38-60-31-43 25-60-16-34-48-54 2-34-42-76-9-12-51-54-39 14-51-35-39z" fill="url(#mapFill)" stroke="#8cc8a2" stroke-width="2"/>
+                  <path d="M206 219l54 28 58-11 41 38-17 48-60 11-45-28-45 9-31-39zM350 120l55 31 54-13 36 48-40 38-68-8-29-43zM504 235l62-31 65 11 31 47-29 42-69-5-42-28zM408 324l59-18 45 37-12 58-51 20-58-36zM551 352l57-25 61 29 19 54-45 41-66-18-31-39z" fill="none" stroke="#a9d4b8" stroke-width="1.5" opacity=".75"/>
+                  <path d="M736 460c18 15 25 35 12 52-12-14-18-33-12-52zM703 532c18 11 22 25 13 38-13-8-19-21-13-38z" fill="#c7e5d1" stroke="#8cc8a2"/>
+                </svg>
+                <button class="city-pin wuhan-pin" id="openWuhan" aria-label="进入武汉市地图"><span class="pin-pulse"></span><i>8</i><div><strong>武汉市</strong><small>24 台设备 · 8 台在线</small></div></button>
+                <div class="map-deco deco-one">107°E</div><div class="map-deco deco-two">35°N</div>
+              </div>
+              <div class="map-tip"><span>⌖</span> 点击地图上的城市坐标，进入城市级设备视图</div>
+            </div>
+          </section>
+
+          <section class="view" id="cityView">
+            <div class="level-toolbar"><button class="back-button" data-back="map">←</button><div><span class="eyebrow">CITY DEVICE MAP</span><h1>武汉市</h1><p>湖北省 · 已接入 1 个项目地点</p></div><div class="level-stats"><span><b>1</b> 项目地点</span><span><b>24</b> 终端设备</span><span><b class="green-text">8</b> 当前在线</span></div></div>
+            <div class="map-stage city-stage">
+              <div class="city-map-grid"></div>
+              <svg class="river" viewBox="0 0 1200 650" preserveAspectRatio="none" aria-hidden="true"><path d="M-40 425C145 345 258 463 421 380S720 238 830 310s237 64 410-12"/><path d="M575-30c-2 167 20 252 85 352s29 218 87 360"/></svg>
+              <div class="road road-a"></div><div class="road road-b"></div><div class="road road-c"></div>
+              <span class="district district-a">汉口</span><span class="district district-b">汉阳区</span><span class="district district-c">武昌区</span><span class="district district-d">洪山区</span>
+              <button class="site-pin" id="openSite"><span class="site-marker"><i></i></span><div><span>武昌区 · 中山路</span><strong>九万里人才基地</strong><small><i></i> 24 台设备 · 8 台在线</small></div></button>
+              <div class="city-compass"><b>N</b><span>↑</span></div>
+              <div class="zoom-control"><button>＋</button><button>−</button></div>
+            </div>
+          </section>
+
+          <section class="view" id="buildingView">
+            <div class="level-toolbar"><button class="back-button" data-back="city">←</button><div><span class="eyebrow">BUILDING DIGITAL TWIN</span><h1>九万里人才基地</h1><p>武汉市武昌区 · 楼宇设备数字孪生</p></div><div class="level-stats"><span><b>12</b> 建筑楼层</span><span><b>24</b> 终端设备</span><span><b class="green-text">8</b> 当前在线</span></div></div>
+            <div class="building-layout">
+              <div class="building-scene">
+                <div class="scene-grid"></div><div class="scene-glow"></div>
+                <div class="tower" id="tower" aria-label="十二层设备楼宇"></div>
+                <div class="building-label"><span>BUILDING A</span><strong>人才基地 A 栋</strong><small>点击楼层中的设备节点进行管理</small></div>
+                <div class="scene-controls"><button id="rotateBuilding">↻</button><button id="resetBuilding">⌂</button></div>
+              </div>
+              <aside class="device-panel">
+                <div class="device-panel-head"><div><h2>楼层设备</h2><p>按楼层查看终端实时状态</p></div><span class="live-pill"><i></i> LIVE</span></div>
+                <div class="floor-filter"><button class="active" data-floor-filter="all">全部</button><button data-floor-filter="online">在线</button><button data-floor-filter="offline">离线</button></div>
+                <div class="device-list" id="deviceList"></div>
+              </aside>
+            </div>
+          </section>
+
           <section class="view" id="overviewView">
             <div class="page-heading"><div><span class="eyebrow">OPERATION CENTER</span><h1>早上好，欢迎回来</h1><p>这里是您的智能语音内容运营中心。</p></div></div>
             <div class="stats-grid">
@@ -68,7 +120,8 @@
             </div>
           </section>
 
-          <section class="view active" id="assetsView">
+          <section class="view" id="assetsView">
+            <div class="device-context" id="deviceContext"><div><span class="device-context-icon">◎</span><p><small>当前目标设备</small><strong id="currentDeviceName">尚未选择设备</strong></p></div><button data-go="map">重新选择</button></div>
             <div class="page-heading">
               <div><span class="eyebrow">AUDIO LIBRARY</span><h1>语音素材</h1><p>集中管理用于终端播放的语音内容，让每一次传达都清晰准确。</p></div>
               <div class="heading-actions"><button class="secondary-btn" id="openTts"><span>✦</span> 文字转语音</button><button class="primary-btn" id="openUpload"><span>＋</span> 上传 MP3</button></div>
