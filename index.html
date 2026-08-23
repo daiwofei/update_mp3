@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIINfQ3ynhPWOd7hMZbKJp4YQXcZAQosWA=" crossorigin="" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -63,16 +64,8 @@
             </div>
             <div class="map-stage national-stage">
               <div class="map-stage-head"><div><strong>中国</strong><span>CHINA</span></div><div class="map-legend"><span><i class="online"></i>在线 8</span><span><i class="offline"></i>离线 16</span></div></div>
-              <div class="china-map" role="img" aria-label="中国设备分布地图">
-                <svg class="china-shape" viewBox="0 0 900 610" aria-hidden="true">
-                  <defs><linearGradient id="mapFill" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#def3e6"/><stop offset="1" stop-color="#bbdfc8"/></linearGradient><filter id="mapShadow"><feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#153f28" flood-opacity=".12"/></filter></defs>
-                  <path filter="url(#mapShadow)" d="M87 248l42-26 34-55 61-13 28-45 65 3 42-36 62 27 54-12 37 28 64 6 34 45 79 7 38 41 72 25 4 45 51 30-18 48-61 15-28 47-72 6-39 56-61-6-40 38-60-31-43 25-60-16-34-48-54 2-34-42-76-9-12-51-54-39 14-51-35-39z" fill="url(#mapFill)" stroke="#8cc8a2" stroke-width="2"/>
-                  <path d="M206 219l54 28 58-11 41 38-17 48-60 11-45-28-45 9-31-39zM350 120l55 31 54-13 36 48-40 38-68-8-29-43zM504 235l62-31 65 11 31 47-29 42-69-5-42-28zM408 324l59-18 45 37-12 58-51 20-58-36zM551 352l57-25 61 29 19 54-45 41-66-18-31-39z" fill="none" stroke="#a9d4b8" stroke-width="1.5" opacity=".75"/>
-                  <path d="M736 460c18 15 25 35 12 52-12-14-18-33-12-52zM703 532c18 11 22 25 13 38-13-8-19-21-13-38z" fill="#c7e5d1" stroke="#8cc8a2"/>
-                </svg>
-                <button class="city-pin wuhan-pin" id="openWuhan" aria-label="进入武汉市地图"><span class="pin-pulse"></span><i>8</i><div><strong>武汉市</strong><small>24 台设备 · 8 台在线</small></div></button>
-                <div class="map-deco deco-one">107°E</div><div class="map-deco deco-two">35°N</div>
-              </div>
+              <div class="china-map real-map" id="chinaMap" role="application" aria-label="中国标准地理底图，武汉市坐标为北纬30.5928度、东经114.3055度"></div>
+              <button class="map-overlay-card national-location" id="openWuhan" aria-label="进入武汉市地图"><span class="location-beacon"><i></i></span><div><small>30.5928°N · 114.3055°E</small><strong>武汉市</strong><em>24 台设备 · 8 台在线</em></div><b>进入城市 →</b></button>
               <div class="map-tip"><span>⌖</span> 点击地图上的城市坐标，进入城市级设备视图</div>
             </div>
           </section>
@@ -80,13 +73,9 @@
           <section class="view" id="cityView">
             <div class="level-toolbar"><button class="back-button" data-back="map">←</button><div><span class="eyebrow">CITY DEVICE MAP</span><h1>武汉市</h1><p>湖北省 · 已接入 1 个项目地点</p></div><div class="level-stats"><span><b>1</b> 项目地点</span><span><b>24</b> 终端设备</span><span><b class="green-text">8</b> 当前在线</span></div></div>
             <div class="map-stage city-stage">
-              <div class="city-map-grid"></div>
-              <svg class="river" viewBox="0 0 1200 650" preserveAspectRatio="none" aria-hidden="true"><path d="M-40 425C145 345 258 463 421 380S720 238 830 310s237 64 410-12"/><path d="M575-30c-2 167 20 252 85 352s29 218 87 360"/></svg>
-              <div class="road road-a"></div><div class="road road-b"></div><div class="road road-c"></div>
-              <span class="district district-a">汉口</span><span class="district district-b">汉阳区</span><span class="district district-c">武昌区</span><span class="district district-d">洪山区</span>
-              <button class="site-pin" id="openSite"><span class="site-marker"><i></i></span><div><span>武昌区 · 中山路</span><strong>九万里人才基地</strong><small><i></i> 24 台设备 · 8 台在线</small></div></button>
-              <div class="city-compass"><b>N</b><span>↑</span></div>
-              <div class="zoom-control"><button>＋</button><button>−</button></div>
+              <div class="real-map" id="wuhanMap" role="application" aria-label="武汉市标准地理底图，显示武昌区九万里人才基地坐标"></div>
+              <button class="map-overlay-card site-location" id="openSite"><span class="location-beacon"><i></i></span><div><small>武昌区 · 项目坐标</small><strong>九万里人才基地</strong><em>24 台设备 · 8 台在线</em></div><b>查看楼宇 →</b></button>
+              <div class="coordinate-card"><span>当前视图中心</span><strong>30.5440°N, 114.3160°E</strong><small>WGS 84 · 城市级视图</small></div>
             </div>
           </section>
 
@@ -215,6 +204,7 @@
     </div>
 
     <div class="toast" id="toast"><span>✓</span><div><strong>操作成功</strong><p></p></div></div>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="app.js"></script>
   </body>
 </html>

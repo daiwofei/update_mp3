@@ -29,6 +29,7 @@ const state = {
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const sourceNames = {preset:'系统预置',upload:'我的上传',tts:'TTS 生成'};
+const geoMaps = {};
 const formatTime = seconds => `${String(Math.floor(seconds/60)).padStart(2,'0')}:${String(Math.round(seconds%60)).padStart(2,'0')}`;
 const escapeHtml = value => String(value).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
 
@@ -49,6 +50,29 @@ function navigate(view){
   $$('.nav-item[data-view]').forEach(n=>n.classList.toggle('active',n.dataset.view===view||(['city','building'].includes(view)&&n.dataset.view==='map')));
   $('#breadcrumbCurrent').textContent={map:'全国设备地图',city:'武汉市',building:'九万里人才基地',overview:'总览',assets:'语音素材',planner:'播放计划编排'}[view];
   $('.sidebar').classList.remove('open');
+  requestAnimationFrame(()=>geoMaps[view]?.invalidateSize());
+}
+
+function createDeviceMap(elementId,center,zoom,onMarkerClick){
+  const element=$(`#${elementId}`);
+  if(typeof L==='undefined'){
+    element.innerHTML='<div class="map-load-fallback"><div><strong>标准地图服务暂时未载入</strong><small>请检查网络连接；设备层级导航仍可通过坐标卡片使用</small></div></div>';
+    return null;
+  }
+  const map=L.map(elementId,{zoomControl:true,attributionControl:true,minZoom:3}).setView(center,zoom);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    maxZoom:19,
+    attribution:'&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap contributors</a>'
+  }).addTo(map);
+  L.control.scale({imperial:false,position:'bottomright'}).addTo(map);
+  const icon=L.divIcon({className:'',html:'<div class="map-pin-marker"></div>',iconSize:[22,22],iconAnchor:[11,11]});
+  L.marker(center,{icon,title:elementId==='chinaMap'?'武汉市':'九万里人才基地'}).addTo(map).on('click',onMarkerClick);
+  return map;
+}
+
+function initializeMaps(){
+  geoMaps.map=createDeviceMap('chinaMap',[30.5928,114.3055],4,()=>navigate('city'));
+  geoMaps.city=createDeviceMap('wuhanMap',[30.5440,114.3160],12,()=>navigate('building'));
 }
 
 function renderDevices(){
@@ -169,5 +193,5 @@ $('#playerToggle').onclick=()=>{const audio=$('#audioElement');if(audio.src){aud
 $('#audioElement').ontimeupdate=e=>{const a=e.target;$('#playerProgress').style.width=`${a.duration?a.currentTime/a.duration*100:0}%`;$('#playerCurrent').textContent=formatTime(a.currentTime)};
 $('#audioElement').onended=()=>$('#playerToggle').textContent='▶';
 
-renderAssets(); renderQueue(); updateMetrics(); renderDevices();
+renderAssets(); renderQueue(); updateMetrics(); renderDevices(); initializeMaps();
 const selectedDevice=localStorage.getItem('hm_selected_device'); if(selectedDevice){const d=devices.find(x=>x.id===selectedDevice);if(d){$('#currentDeviceName').textContent=`${d.id} · 九万里人才基地 ${d.floor}F`;$('#deviceContext').classList.add('selected')}}
