@@ -50,29 +50,58 @@ function navigate(view){
   $$('.nav-item[data-view]').forEach(n=>n.classList.toggle('active',n.dataset.view===view||(['city','building'].includes(view)&&n.dataset.view==='map')));
   $('#breadcrumbCurrent').textContent={map:'全国设备地图',city:'武汉市',building:'九万里人才基地',overview:'总览',assets:'语音素材',planner:'播放计划编排'}[view];
   $('.sidebar').classList.remove('open');
-  requestAnimationFrame(()=>geoMaps[view]?.invalidateSize());
+  requestAnimationFrame(()=>{
+    window.dispatchEvent(new Event('resize'));
+    const map=geoMaps[view]; if(map)setTimeout(()=>map.setCenter(map.getCenter()),80);
+  });
+}
+
+function getMapConfig(){
+  const fileConfig=window.HM_MAP_CONFIG||{};
+  return {ak:localStorage.getItem('hm_baidu_map_ak')||fileConfig.baiduAk||''};
+}
+
+function showMapSetup(message='需要配置百度地图浏览器端 AK 才能载入完整地图。'){
+  ['chinaMap','wuhanMap'].forEach(id=>$(`#${id}`).innerHTML=`<div class="map-load-fallback"><div><span class="baidu-map-logo">百度地图</span><strong>地图服务等待配置</strong><small>${message}</small><button class="primary-btn map-config-trigger">配置百度地图</button></div></div>`);
+  $$('.map-config-trigger').forEach(button=>button.onclick=()=>openMapConfig());
+}
+
+function openMapConfig(){
+  $('#baiduMapAk').value=getMapConfig().ak; openModal('mapConfigModal');
+}
+
+function loadBaiduMap(){
+  const config=getMapConfig();
+  if(!config.ak){showMapSetup('请填写百度地图浏览器端 AK，地图即可完整显示。');return Promise.reject(new Error('Baidu Map AK missing'))}
+  return new Promise((resolve,reject)=>{
+    const callback=`__hmBaiduMapReady_${Date.now()}`;
+    const timeout=setTimeout(()=>{delete window[callback];reject(new Error('百度地图加载超时'))},15000);
+    window[callback]=()=>{clearTimeout(timeout);delete window[callback];window.BMapGL?resolve(window.BMapGL):reject(new Error('BMapGL unavailable'))};
+    const script=document.createElement('script');
+    script.src=`https://api.map.baidu.com/api?v=1.0&type=webgl&ak=${encodeURIComponent(config.ak)}&callback=${callback}`;
+    script.onerror=()=>{clearTimeout(timeout);delete window[callback];reject(new Error('百度地图脚本加载失败'))};
+    document.head.appendChild(script);
+  });
 }
 
 function createDeviceMap(elementId,center,zoom,onMarkerClick){
-  const element=$(`#${elementId}`);
-  if(typeof L==='undefined'){
-    element.innerHTML='<div class="map-load-fallback"><div><strong>标准地图服务暂时未载入</strong><small>请检查网络连接；设备层级导航仍可通过坐标卡片使用</small></div></div>';
-    return null;
-  }
-  const map=L.map(elementId,{zoomControl:true,attributionControl:true,minZoom:3}).setView(center,zoom);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-    maxZoom:19,
-    attribution:'&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap contributors</a>'
-  }).addTo(map);
-  L.control.scale({imperial:false,position:'bottomright'}).addTo(map);
-  const icon=L.divIcon({className:'',html:'<div class="map-pin-marker"></div>',iconSize:[22,22],iconAnchor:[11,11]});
-  L.marker(center,{icon,title:elementId==='chinaMap'?'武汉市':'九万里人才基地'}).addTo(map).on('click',onMarkerClick);
-  return map;
+  const point=new BMapGL.Point(center[0],center[1]);
+  const map=new BMapGL.Map(elementId,{enableMapClick:false,minZoom:3,maxZoom:19});
+  map.centerAndZoom(point,zoom); map.enableScrollWheelZoom(true); map.enableContinuousZoom(); map.enableInertialDragging();
+  map.addControl(new BMapGL.ScaleControl({anchor:BMAP_ANCHOR_BOTTOM_RIGHT}));
+  map.addControl(new BMapGL.NavigationControl3D({anchor:BMAP_ANCHOR_BOTTOM_RIGHT}));
+  map.addControl(new BMapGL.MapTypeControl({anchor:BMAP_ANCHOR_TOP_RIGHT}));
+  if(elementId==='wuhanMap')map.setTilt(38);
+  const marker=new BMapGL.Marker(point,{title:elementId==='chinaMap'?'武汉市':'九万里人才基地'});
+  marker.addEventListener('click',onMarkerClick); map.addOverlay(marker); return map;
 }
 
-function initializeMaps(){
-  geoMaps.map=createDeviceMap('chinaMap',[30.5928,114.3055],4,()=>navigate('city'));
-  geoMaps.city=createDeviceMap('wuhanMap',[30.5440,114.3160],12,()=>navigate('building'));
+async function initializeMaps(){
+  try{
+    await loadBaiduMap();
+    geoMaps.map=createDeviceMap('chinaMap',[114.3120,30.5980],5,()=>navigate('city'));
+    geoMaps.city=createDeviceMap('wuhanMap',[114.3225,30.5500],14,()=>navigate('building'));
+  }catch(error){if(getMapConfig().ak)showMapSetup('地图载入失败，请检查 AK、Referer 白名单和网络连接。')}
 }
 
 function renderDevices(){
@@ -173,6 +202,11 @@ $('#mobileMenu').onclick=()=>$('.sidebar').classList.toggle('open');
 $('#assetTabs').onclick=e=>{if(!e.target.dataset.filter)return;state.filter=e.target.dataset.filter;$$('#assetTabs button').forEach(b=>b.classList.toggle('active',b===e.target));renderAssets()};
 $('#assetSearch').oninput=e=>{state.search=e.target.value;renderAssets()}; $('#sourceSearch').oninput=e=>{state.sourceSearch=e.target.value;renderSourceList()};
 $('#openUpload').onclick=()=>openModal('uploadModal'); $('#openTts').onclick=()=>openModal('ttsModal');
+$('#saveMapConfig').onclick=()=>{
+  const ak=$('#baiduMapAk').value.trim();
+  if(!ak){showToast('配置不完整','请输入百度地图浏览器端 AK。');return}
+  localStorage.setItem('hm_baidu_map_ak',ak);location.reload();
+};
 $$('[data-close]').forEach(b=>b.onclick=()=>closeModal(b.dataset.close)); $$('.modal').forEach(m=>m.onclick=e=>{if(e.target===m)closeModal(m.id)});
 $('#fileInput').onchange=e=>{const f=e.target.files[0];if(f){$('#selectedFile').textContent=`已选择：${f.name} · ${(f.size/1048576).toFixed(2)} MB`;$('#uploadName').value=f.name.replace(/\.mp3$/i,'')}};
 $('#confirmUpload').onclick=()=>{

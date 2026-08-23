@@ -5,10 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="华明新能源智能语音调度台" />
     <title>智能语音调度台 · Huaming Renewables</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIINfQ3ynhPWOd7hMZbKJp4YQXcZAQosWA=" crossorigin="" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -64,8 +60,8 @@
             </div>
             <div class="map-stage national-stage">
               <div class="map-stage-head"><div><strong>中国</strong><span>CHINA</span></div><div class="map-legend"><span><i class="online"></i>在线 8</span><span><i class="offline"></i>离线 16</span></div></div>
-              <div class="china-map real-map" id="chinaMap" role="application" aria-label="中国标准地理底图，武汉市坐标为北纬30.5928度、东经114.3055度"></div>
-              <button class="map-overlay-card national-location" id="openWuhan" aria-label="进入武汉市地图"><span class="location-beacon"><i></i></span><div><small>30.5928°N · 114.3055°E</small><strong>武汉市</strong><em>24 台设备 · 8 台在线</em></div><b>进入城市 →</b></button>
+              <div class="china-map real-map" id="chinaMap" role="application" aria-label="百度地图中国视图，武汉市坐标为北纬30.598度、东经114.312度"></div>
+              <button class="map-overlay-card national-location" id="openWuhan" aria-label="进入武汉市地图"><span class="location-beacon"><i></i></span><div><small>百度 BD-09 · 武汉市</small><strong>武汉市</strong><em>24 台设备 · 8 台在线</em></div><b>进入城市 →</b></button>
               <div class="map-tip"><span>⌖</span> 点击地图上的城市坐标，进入城市级设备视图</div>
             </div>
           </section>
@@ -73,9 +69,9 @@
           <section class="view" id="cityView">
             <div class="level-toolbar"><button class="back-button" data-back="map">←</button><div><span class="eyebrow">CITY DEVICE MAP</span><h1>武汉市</h1><p>湖北省 · 已接入 1 个项目地点</p></div><div class="level-stats"><span><b>1</b> 项目地点</span><span><b>24</b> 终端设备</span><span><b class="green-text">8</b> 当前在线</span></div></div>
             <div class="map-stage city-stage">
-              <div class="real-map" id="wuhanMap" role="application" aria-label="武汉市标准地理底图，显示武昌区九万里人才基地坐标"></div>
+              <div class="real-map" id="wuhanMap" role="application" aria-label="百度地图武汉市视图，显示武昌区九万里人才基地坐标"></div>
               <button class="map-overlay-card site-location" id="openSite"><span class="location-beacon"><i></i></span><div><small>武昌区 · 项目坐标</small><strong>九万里人才基地</strong><em>24 台设备 · 8 台在线</em></div><b>查看楼宇 →</b></button>
-              <div class="coordinate-card"><span>当前视图中心</span><strong>30.5440°N, 114.3160°E</strong><small>WGS 84 · 城市级视图</small></div>
+              <div class="coordinate-card"><span>当前视图中心</span><strong>30.5500°N, 114.3225°E</strong><small>BD-09 · 城市级视图</small></div>
             </div>
           </section>
 
@@ -203,8 +199,19 @@
       </div>
     </div>
 
+    <div class="modal" id="mapConfigModal" aria-hidden="true">
+      <div class="modal-card">
+        <button class="modal-close" data-close="mapConfigModal">×</button>
+        <span class="eyebrow">BAIDU MAP CONFIGURATION</span><h2>配置百度地图</h2>
+        <p class="modal-lead">填写百度地图开放平台“浏览器端”应用的访问应用 AK。凭证仅保存在当前浏览器。</p>
+        <label class="field"><span>浏览器端 AK</span><input id="baiduMapAk" autocomplete="off" placeholder="请输入百度地图浏览器端 AK" /></label>
+        <div class="tts-notice"><span>i</span><p><strong>Referer 白名单</strong> 请在百度地图开放平台中添加当前网站域名；正式部署时建议由服务器注入 AK，不要写入公开仓库。</p></div>
+        <div class="modal-actions"><button class="secondary-btn" data-close="mapConfigModal">取消</button><button class="primary-btn" id="saveMapConfig">保存并重新载入</button></div>
+      </div>
+    </div>
+
     <div class="toast" id="toast"><span>✓</span><div><strong>操作成功</strong><p></p></div></div>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="baidu-map-config.js"></script>
     <script src="app.js"></script>
   </body>
 </html>
