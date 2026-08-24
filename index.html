@@ -205,7 +205,7 @@
         <span class="eyebrow">TIANDITU CONFIGURATION</span><h2>配置天地图</h2>
         <p class="modal-lead">填写在天地图开发者控制台申请的浏览器端 Token。Token 仅保存在当前浏览器。</p>
         <label class="field"><span>浏览器端 Token</span><input id="tiandituToken" autocomplete="off" placeholder="请输入天地图 Token" /></label>
-        <div class="tts-notice"><span>i</span><p><strong>应用要求</strong> 请确保 Token 已启用并正确配置域名限制。正式部署时建议由服务器注入 Token，不要将生产凭证提交到公开仓库。</p></div>
+        <div class="tts-notice"><span>i</span><p><strong>应用要求</strong> 请确保 Token 已启用；如果设置了域名限制，需要允许当前域名。直接打开本地 HTML 也会尝试加载，若平台拒绝 file://，再改用 localhost。</p></div>
         <div class="modal-actions"><button class="secondary-btn" data-close="mapConfigModal">取消</button><button class="primary-btn" id="saveMapConfig">保存并重新载入</button></div>
       </div>
     </div>

@@ -30,6 +30,7 @@ const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const sourceNames = {preset:'系统预置',upload:'我的上传',tts:'TTS 生成'};
 const geoMaps = {};
+let tiandituReady=false;
 const formatTime = seconds => `${String(Math.floor(seconds/60)).padStart(2,'0')}:${String(Math.round(seconds%60)).padStart(2,'0')}`;
 const escapeHtml = value => String(value).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
 
@@ -51,6 +52,7 @@ function navigate(view){
   $('#breadcrumbCurrent').textContent={map:'全国设备地图',city:'武汉市',building:'九万里人才基地',overview:'总览',assets:'语音素材',planner:'播放计划编排'}[view];
   $('.sidebar').classList.remove('open');
   requestAnimationFrame(()=>{
+    if(view==='city'&&tiandituReady&&!geoMaps.city)geoMaps.city=createDeviceMap('wuhanMap',[114.3160,30.5440],14,()=>navigate('building'));
     window.dispatchEvent(new Event('resize'));
     const map=geoMaps[view]; if(map)setTimeout(()=>map.setCenter(map.getCenter()),80);
   });
@@ -64,15 +66,6 @@ function getMapConfig(){
 function showMapSetup(message='需要配置天地图浏览器端 Token 才能载入完整地图。'){
   ['chinaMap','wuhanMap'].forEach(id=>$(`#${id}`).innerHTML=`<div class="map-load-fallback"><div><span class="tianditu-logo">天地图</span><strong>地图服务等待配置</strong><small>${message}</small><button class="primary-btn map-config-trigger">配置天地图</button></div></div>`);
   $$('.map-config-trigger').forEach(button=>button.onclick=()=>openMapConfig());
-}
-
-function showLocalServerGuide(){
-  const guide='<div class="map-load-fallback local-server-guide"><div><span class="protocol-badge">FILE://</span><strong>请通过本地服务器打开网页</strong><small>在线地图服务不支持直接双击 HTML 文件运行。请在项目目录启动 HTTP 服务，再访问 localhost。</small><code>python3 -m http.server 4173</code><button class="primary-btn copy-server-command">复制启动命令</button></div></div>';
-  ['chinaMap','wuhanMap'].forEach(id=>$(`#${id}`).innerHTML=guide);
-  $$('.copy-server-command').forEach(button=>button.onclick=async()=>{
-    try{await navigator.clipboard.writeText('python3 -m http.server 4173');showToast('已复制','请在项目目录的终端中运行该命令。')}
-    catch{showToast('启动命令','python3 -m http.server 4173')}
-  });
 }
 
 function openMapConfig(){
@@ -96,18 +89,23 @@ function createDeviceMap(elementId,center,zoom,onMarkerClick){
   const point=new T.LngLat(center[0],center[1]);
   const map=new T.Map(elementId,{minZoom:3,maxZoom:18});
   map.centerAndZoom(point,zoom); map.enableScrollWheelZoom();
-  [T.Control.Zoom,T.Control.Scale,T.Control.MapType].forEach(Control=>{if(Control)map.addControl(new Control())});
+  [T.Control?.Zoom,T.Control?.Scale,T.Control?.MapType].forEach(Control=>{
+    if(!Control)return;
+    try{map.addControl(new Control())}catch(error){console.warn('天地图控件初始化失败：',error)}
+  });
   const marker=new T.Marker(point,{title:elementId==='chinaMap'?'武汉市':'九万里人才基地'});
   marker.addEventListener('click',onMarkerClick); map.addOverlay(marker); return map;
 }
 
 async function initializeMaps(){
-  if(location.protocol==='file:'){showLocalServerGuide();return}
   try{
     await loadTianditu();
+    tiandituReady=true;
     geoMaps.map=createDeviceMap('chinaMap',[114.3055,30.5928],5,()=>navigate('city'));
-    geoMaps.city=createDeviceMap('wuhanMap',[114.3160,30.5440],14,()=>navigate('building'));
-  }catch(error){if(getMapConfig().token)showMapSetup('地图载入失败：请确认 Token 已启用，并检查域名限制、调用配额和网络连接。')}
+  }catch(error){
+    console.error('天地图初始化失败：',error);
+    if(getMapConfig().token)showMapSetup(`地图载入失败：${error.message||'未知错误'}。请检查 Token、域名限制、调用配额和网络连接。`)
+  }
 }
 
 function renderDevices(){
