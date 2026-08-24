@@ -58,16 +58,16 @@ function navigate(view){
 
 function getMapConfig(){
   const fileConfig=window.HM_MAP_CONFIG||{};
-  return {ak:localStorage.getItem('hm_baidu_map_ak')||fileConfig.baiduAk||''};
+  return {token:localStorage.getItem('hm_tianditu_token')||fileConfig.tiandituToken||''};
 }
 
-function showMapSetup(message='需要配置百度地图浏览器端 AK 才能载入完整地图。'){
-  ['chinaMap','wuhanMap'].forEach(id=>$(`#${id}`).innerHTML=`<div class="map-load-fallback"><div><span class="baidu-map-logo">百度地图</span><strong>地图服务等待配置</strong><small>${message}</small><button class="primary-btn map-config-trigger">配置百度地图</button></div></div>`);
+function showMapSetup(message='需要配置天地图浏览器端 Token 才能载入完整地图。'){
+  ['chinaMap','wuhanMap'].forEach(id=>$(`#${id}`).innerHTML=`<div class="map-load-fallback"><div><span class="tianditu-logo">天地图</span><strong>地图服务等待配置</strong><small>${message}</small><button class="primary-btn map-config-trigger">配置天地图</button></div></div>`);
   $$('.map-config-trigger').forEach(button=>button.onclick=()=>openMapConfig());
 }
 
 function showLocalServerGuide(){
-  const guide='<div class="map-load-fallback local-server-guide"><div><span class="protocol-badge">FILE://</span><strong>请通过本地服务器打开网页</strong><small>百度地图不支持直接双击 HTML 文件运行。请在项目目录启动 HTTP 服务，再访问 localhost。</small><code>python3 -m http.server 4173</code><button class="primary-btn copy-server-command">复制启动命令</button></div></div>';
+  const guide='<div class="map-load-fallback local-server-guide"><div><span class="protocol-badge">FILE://</span><strong>请通过本地服务器打开网页</strong><small>在线地图服务不支持直接双击 HTML 文件运行。请在项目目录启动 HTTP 服务，再访问 localhost。</small><code>python3 -m http.server 4173</code><button class="primary-btn copy-server-command">复制启动命令</button></div></div>';
   ['chinaMap','wuhanMap'].forEach(id=>$(`#${id}`).innerHTML=guide);
   $$('.copy-server-command').forEach(button=>button.onclick=async()=>{
     try{await navigator.clipboard.writeText('python3 -m http.server 4173');showToast('已复制','请在项目目录的终端中运行该命令。')}
@@ -76,42 +76,38 @@ function showLocalServerGuide(){
 }
 
 function openMapConfig(){
-  $('#baiduMapAk').value=getMapConfig().ak; openModal('mapConfigModal');
+  $('#tiandituToken').value=getMapConfig().token; openModal('mapConfigModal');
 }
 
-function loadBaiduMap(){
+function loadTianditu(){
   const config=getMapConfig();
-  if(!config.ak){showMapSetup('请填写百度地图浏览器端 AK，地图即可完整显示。');return Promise.reject(new Error('Baidu Map AK missing'))}
+  if(!config.token){showMapSetup('请填写天地图浏览器端 Token，地图即可完整显示。');return Promise.reject(new Error('Tianditu token missing'))}
   return new Promise((resolve,reject)=>{
-    const callback=`__hmBaiduMapReady_${Date.now()}`;
-    const timeout=setTimeout(()=>{delete window[callback];reject(new Error('百度地图加载超时'))},15000);
-    window[callback]=()=>{clearTimeout(timeout);delete window[callback];window.BMapGL?resolve(window.BMapGL):reject(new Error('BMapGL unavailable'))};
+    const timeout=setTimeout(()=>reject(new Error('天地图加载超时')),15000);
     const script=document.createElement('script');
-    script.src=`https://api.map.baidu.com/api?v=1.0&type=webgl&ak=${encodeURIComponent(config.ak)}&callback=${callback}`;
-    script.onerror=()=>{clearTimeout(timeout);delete window[callback];reject(new Error('百度地图脚本加载失败'))};
+    script.src=`https://api.tianditu.gov.cn/api?v=4.0&tk=${encodeURIComponent(config.token)}`;
+    script.onload=()=>{clearTimeout(timeout);window.T?resolve(window.T):reject(new Error('Tianditu API unavailable'))};
+    script.onerror=()=>{clearTimeout(timeout);reject(new Error('天地图脚本加载失败'))};
     document.head.appendChild(script);
   });
 }
 
 function createDeviceMap(elementId,center,zoom,onMarkerClick){
-  const point=new BMapGL.Point(center[0],center[1]);
-  const map=new BMapGL.Map(elementId,{enableMapClick:false,minZoom:3,maxZoom:19});
-  map.centerAndZoom(point,zoom); map.enableScrollWheelZoom(true); map.enableContinuousZoom(); map.enableInertialDragging();
-  map.addControl(new BMapGL.ScaleControl({anchor:BMAP_ANCHOR_BOTTOM_RIGHT}));
-  map.addControl(new BMapGL.NavigationControl3D({anchor:BMAP_ANCHOR_BOTTOM_RIGHT}));
-  map.addControl(new BMapGL.MapTypeControl({anchor:BMAP_ANCHOR_TOP_RIGHT}));
-  if(elementId==='wuhanMap')map.setTilt(38);
-  const marker=new BMapGL.Marker(point,{title:elementId==='chinaMap'?'武汉市':'九万里人才基地'});
+  const point=new T.LngLat(center[0],center[1]);
+  const map=new T.Map(elementId,{minZoom:3,maxZoom:18});
+  map.centerAndZoom(point,zoom); map.enableScrollWheelZoom();
+  [T.Control.Zoom,T.Control.Scale,T.Control.MapType].forEach(Control=>{if(Control)map.addControl(new Control())});
+  const marker=new T.Marker(point,{title:elementId==='chinaMap'?'武汉市':'九万里人才基地'});
   marker.addEventListener('click',onMarkerClick); map.addOverlay(marker); return map;
 }
 
 async function initializeMaps(){
   if(location.protocol==='file:'){showLocalServerGuide();return}
   try{
-    await loadBaiduMap();
-    geoMaps.map=createDeviceMap('chinaMap',[114.3120,30.5980],5,()=>navigate('city'));
-    geoMaps.city=createDeviceMap('wuhanMap',[114.3225,30.5500],14,()=>navigate('building'));
-  }catch(error){if(getMapConfig().ak)showMapSetup('地图载入失败：请确认应用没有被停用、已启用 WebGL JS API，并检查 AK、Referer 白名单和网络。')}
+    await loadTianditu();
+    geoMaps.map=createDeviceMap('chinaMap',[114.3055,30.5928],5,()=>navigate('city'));
+    geoMaps.city=createDeviceMap('wuhanMap',[114.3160,30.5440],14,()=>navigate('building'));
+  }catch(error){if(getMapConfig().token)showMapSetup('地图载入失败：请确认 Token 已启用，并检查域名限制、调用配额和网络连接。')}
 }
 
 function renderDevices(){
@@ -213,9 +209,9 @@ $('#assetTabs').onclick=e=>{if(!e.target.dataset.filter)return;state.filter=e.ta
 $('#assetSearch').oninput=e=>{state.search=e.target.value;renderAssets()}; $('#sourceSearch').oninput=e=>{state.sourceSearch=e.target.value;renderSourceList()};
 $('#openUpload').onclick=()=>openModal('uploadModal'); $('#openTts').onclick=()=>openModal('ttsModal');
 $('#saveMapConfig').onclick=()=>{
-  const ak=$('#baiduMapAk').value.trim();
-  if(!ak){showToast('配置不完整','请输入百度地图浏览器端 AK。');return}
-  localStorage.setItem('hm_baidu_map_ak',ak);location.reload();
+  const token=$('#tiandituToken').value.trim();
+  if(!token){showToast('配置不完整','请输入天地图浏览器端 Token。');return}
+  localStorage.setItem('hm_tianditu_token',token);location.reload();
 };
 $$('[data-close]').forEach(b=>b.onclick=()=>closeModal(b.dataset.close)); $$('.modal').forEach(m=>m.onclick=e=>{if(e.target===m)closeModal(m.id)});
 $('#fileInput').onchange=e=>{const f=e.target.files[0];if(f){$('#selectedFile').textContent=`已选择：${f.name} · ${(f.size/1048576).toFixed(2)} MB`;$('#uploadName').value=f.name.replace(/\.mp3$/i,'')}};
