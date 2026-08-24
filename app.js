@@ -29,8 +29,6 @@ const state = {
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const sourceNames = {preset:'系统预置',upload:'我的上传',tts:'TTS 生成'};
-const geoMaps = {};
-let tiandituReady=false;
 const formatTime = seconds => `${String(Math.floor(seconds/60)).padStart(2,'0')}:${String(Math.round(seconds%60)).padStart(2,'0')}`;
 const escapeHtml = value => String(value).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
 
@@ -51,61 +49,6 @@ function navigate(view){
   $$('.nav-item[data-view]').forEach(n=>n.classList.toggle('active',n.dataset.view===view||(['city','building'].includes(view)&&n.dataset.view==='map')));
   $('#breadcrumbCurrent').textContent={map:'全国设备地图',city:'武汉市',building:'九万里人才基地',overview:'总览',assets:'语音素材',planner:'播放计划编排'}[view];
   $('.sidebar').classList.remove('open');
-  requestAnimationFrame(()=>{
-    if(view==='city'&&tiandituReady&&!geoMaps.city)geoMaps.city=createDeviceMap('wuhanMap',[114.3160,30.5440],14,()=>navigate('building'));
-    window.dispatchEvent(new Event('resize'));
-    const map=geoMaps[view]; if(map)setTimeout(()=>map.setCenter(map.getCenter()),80);
-  });
-}
-
-function getMapConfig(){
-  const fileConfig=window.HM_MAP_CONFIG||{};
-  return {token:localStorage.getItem('hm_tianditu_token')||fileConfig.tiandituToken||''};
-}
-
-function showMapSetup(message='需要配置天地图浏览器端 Token 才能载入完整地图。'){
-  ['chinaMap','wuhanMap'].forEach(id=>$(`#${id}`).innerHTML=`<div class="map-load-fallback"><div><span class="tianditu-logo">天地图</span><strong>地图服务等待配置</strong><small>${message}</small><button class="primary-btn map-config-trigger">配置天地图</button></div></div>`);
-  $$('.map-config-trigger').forEach(button=>button.onclick=()=>openMapConfig());
-}
-
-function openMapConfig(){
-  $('#tiandituToken').value=getMapConfig().token; openModal('mapConfigModal');
-}
-
-function loadTianditu(){
-  const config=getMapConfig();
-  if(!config.token){showMapSetup('请填写天地图浏览器端 Token，地图即可完整显示。');return Promise.reject(new Error('Tianditu token missing'))}
-  return new Promise((resolve,reject)=>{
-    const timeout=setTimeout(()=>reject(new Error('天地图加载超时')),15000);
-    const script=document.createElement('script');
-    script.src=`https://api.tianditu.gov.cn/api?v=4.0&tk=${encodeURIComponent(config.token)}`;
-    script.onload=()=>{clearTimeout(timeout);window.T?resolve(window.T):reject(new Error('Tianditu API unavailable'))};
-    script.onerror=()=>{clearTimeout(timeout);reject(new Error('天地图脚本加载失败'))};
-    document.head.appendChild(script);
-  });
-}
-
-function createDeviceMap(elementId,center,zoom,onMarkerClick){
-  const point=new T.LngLat(center[0],center[1]);
-  const map=new T.Map(elementId,{minZoom:3,maxZoom:18});
-  map.centerAndZoom(point,zoom); map.enableScrollWheelZoom();
-  [T.Control?.Zoom,T.Control?.Scale,T.Control?.MapType].forEach(Control=>{
-    if(!Control)return;
-    try{map.addControl(new Control())}catch(error){console.warn('天地图控件初始化失败：',error)}
-  });
-  const marker=new T.Marker(point,{title:elementId==='chinaMap'?'武汉市':'九万里人才基地'});
-  marker.addEventListener('click',onMarkerClick); map.addOverlay(marker); return map;
-}
-
-async function initializeMaps(){
-  try{
-    await loadTianditu();
-    tiandituReady=true;
-    geoMaps.map=createDeviceMap('chinaMap',[114.3055,30.5928],5,()=>navigate('city'));
-  }catch(error){
-    console.error('天地图初始化失败：',error);
-    if(getMapConfig().token)showMapSetup(`地图载入失败：${error.message||'未知错误'}。请检查 Token、域名限制、调用配额和网络连接。`)
-  }
 }
 
 function renderDevices(){
@@ -206,11 +149,6 @@ $('#mobileMenu').onclick=()=>$('.sidebar').classList.toggle('open');
 $('#assetTabs').onclick=e=>{if(!e.target.dataset.filter)return;state.filter=e.target.dataset.filter;$$('#assetTabs button').forEach(b=>b.classList.toggle('active',b===e.target));renderAssets()};
 $('#assetSearch').oninput=e=>{state.search=e.target.value;renderAssets()}; $('#sourceSearch').oninput=e=>{state.sourceSearch=e.target.value;renderSourceList()};
 $('#openUpload').onclick=()=>openModal('uploadModal'); $('#openTts').onclick=()=>openModal('ttsModal');
-$('#saveMapConfig').onclick=()=>{
-  const token=$('#tiandituToken').value.trim();
-  if(!token){showToast('配置不完整','请输入天地图浏览器端 Token。');return}
-  localStorage.setItem('hm_tianditu_token',token);location.reload();
-};
 $$('[data-close]').forEach(b=>b.onclick=()=>closeModal(b.dataset.close)); $$('.modal').forEach(m=>m.onclick=e=>{if(e.target===m)closeModal(m.id)});
 $('#fileInput').onchange=e=>{const f=e.target.files[0];if(f){$('#selectedFile').textContent=`已选择：${f.name} · ${(f.size/1048576).toFixed(2)} MB`;$('#uploadName').value=f.name.replace(/\.mp3$/i,'')}};
 $('#confirmUpload').onclick=()=>{
@@ -231,5 +169,5 @@ $('#playerToggle').onclick=()=>{const audio=$('#audioElement');if(audio.src){aud
 $('#audioElement').ontimeupdate=e=>{const a=e.target;$('#playerProgress').style.width=`${a.duration?a.currentTime/a.duration*100:0}%`;$('#playerCurrent').textContent=formatTime(a.currentTime)};
 $('#audioElement').onended=()=>$('#playerToggle').textContent='▶';
 
-renderAssets(); renderQueue(); updateMetrics(); renderDevices(); initializeMaps();
+renderAssets(); renderQueue(); updateMetrics(); renderDevices();
 const selectedDevice=localStorage.getItem('hm_selected_device'); if(selectedDevice){const d=devices.find(x=>x.id===selectedDevice);if(d){$('#currentDeviceName').textContent=`${d.id} · 九万里人才基地 ${d.floor}F`;$('#deviceContext').classList.add('selected')}}

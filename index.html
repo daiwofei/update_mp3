@@ -60,7 +60,26 @@
             </div>
             <div class="map-stage national-stage">
               <div class="map-stage-head"><div><strong>中国</strong><span>CHINA</span></div><div class="map-legend"><span><i class="online"></i>在线 8</span><span><i class="offline"></i>离线 16</span></div></div>
-              <div class="china-map real-map" id="chinaMap" role="application" aria-label="天地图中国视图，武汉市坐标为北纬30.5928度、东经114.3055度"></div>
+              <div class="static-map china-static" id="chinaMap" role="img" aria-label="中国静态设备索引地图，标注武汉市项目坐标">
+                <svg viewBox="0 0 1100 650" aria-hidden="true">
+                  <defs>
+                    <linearGradient id="chinaLand" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#dff2e6"/><stop offset="1" stop-color="#b9ddc7"/></linearGradient>
+                    <filter id="landShadow"><feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#173d29" flood-opacity=".14"/></filter>
+                    <pattern id="mapDots" width="24" height="24" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="#a9c4b2" opacity=".45"/></pattern>
+                  </defs>
+                  <rect width="1100" height="650" fill="url(#mapDots)"/>
+                  <g class="longitude-lines"><path d="M150 55V590M350 55V590M550 55V590M750 55V590M950 55V590"/><path d="M70 140H1030M70 280H1030M70 420H1030M70 560H1030"/></g>
+                  <g class="china-land" filter="url(#landShadow)">
+                    <path d="M158 250l38-21 12-48 47-24 44 8 24-39 56-26 54 12 39-30 59 10 34 38 61-2 31 35 69 7 37 31 70 12 33 40 72 25 14 37-34 28 17 39-53 23-26 46-62 9-35 45-57-2-31 41-48-10-34 31-51-18-42 21-45-27-52 4-34-33-61-4-19-43-68-20-17-47-46-29 13-42-33-31 9-40z"/>
+                    <path class="island" d="M843 507c15 10 20 30 9 45-11-13-16-29-9-45zM765 560c12 7 15 18 8 27-10-6-13-15-8-27z"/>
+                  </g>
+                  <g class="province-lines"><path d="M252 165l35 49-5 56-53 31M326 126l29 58 55 24-16 64-54 31M434 114l23 61 63 19 26 57-43 38M565 132l-10 61 62 46-18 59M690 174l-32 63 45 50-23 51M808 213l-63 45 28 56 67 21M292 321l64 5 31 59-43 46M410 291l55 36-5 66-44 29M506 292l39 48-17 57 52 45M610 303l-17 62 63 38-6 60M706 339l-23 56 50 35-6 50M366 437l52 6 27 45M474 408l-10 61 43 34M560 448l40 26-12 45"/></g>
+                  <g class="province-labels"><text x="340" y="155">新疆</text><text x="505" y="135">内蒙古</text><text x="709" y="203">黑龙江</text><text x="749" y="255">吉林</text><text x="708" y="296">辽宁</text><text x="581" y="249">甘肃</text><text x="430" y="257">青海</text><text x="319" y="341">西藏</text><text x="535" y="330">四川</text><text x="625" y="319">陕西</text><text x="679" y="345">河南</text><text x="729" y="380">安徽</text><text x="771" y="395">江苏</text><text x="823" y="408">浙江</text><text x="663" y="407">湖北</text><text x="671" y="459">湖南</text><text x="596" y="445">贵州</text><text x="518" y="480">云南</text><text x="629" y="502">广西</text><text x="706" y="500">广东</text><text x="764" y="451">江西</text><text x="839" y="458">福建</text><text x="615" y="375">重庆</text><text x="603" y="535">海南</text><text x="858" y="531">台湾</text></g>
+                  <g class="coord-labels"><text x="58" y="145">45°N</text><text x="58" y="285">35°N</text><text x="58" y="425">25°N</text><text x="140" y="620">80°E</text><text x="540" y="620">100°E</text><text x="930" y="620">120°E</text></g>
+                  <g class="wuhan-svg-pin" transform="translate(694 390)"><circle r="23"/><circle r="10"/><circle r="4"/></g>
+                </svg>
+                <div class="static-map-badge"><span>OFFLINE MAP</span><strong>静态设备索引 · 无第三方地图服务</strong></div>
+              </div>
               <button class="map-overlay-card national-location" id="openWuhan" aria-label="进入武汉市地图"><span class="location-beacon"><i></i></span><div><small>WGS 84 · 武汉市</small><strong>武汉市</strong><em>24 台设备 · 8 台在线</em></div><b>进入城市 →</b></button>
               <div class="map-tip"><span>⌖</span> 点击地图上的城市坐标，进入城市级设备视图</div>
             </div>
@@ -69,7 +88,22 @@
           <section class="view" id="cityView">
             <div class="level-toolbar"><button class="back-button" data-back="map">←</button><div><span class="eyebrow">CITY DEVICE MAP</span><h1>武汉市</h1><p>湖北省 · 已接入 1 个项目地点</p></div><div class="level-stats"><span><b>1</b> 项目地点</span><span><b>24</b> 终端设备</span><span><b class="green-text">8</b> 当前在线</span></div></div>
             <div class="map-stage city-stage">
-              <div class="real-map" id="wuhanMap" role="application" aria-label="天地图武汉市视图，显示武昌区九万里人才基地坐标"></div>
+              <div class="static-map wuhan-static" id="wuhanMap" role="img" aria-label="武汉市静态项目索引地图，标注武昌区九万里人才基地">
+                <svg viewBox="0 0 1100 650" aria-hidden="true">
+                  <defs><pattern id="cityBlocks" width="62" height="62" patternUnits="userSpaceOnUse"><rect width="62" height="62" fill="#edf3ee"/><path d="M0 0H62V62" fill="none" stroke="#dae6dd" stroke-width="2"/></pattern></defs>
+                  <rect width="1100" height="650" fill="url(#cityBlocks)"/>
+                  <g class="minor-roads"><path d="M40 110l1000 410M80 520L1010 90M250 20l85 610M470 0l20 650M760 10l-65 620M980 50L850 620"/><path d="M20 210l1040 25M30 390l1020-15M130 570l890-30"/></g>
+                  <g class="major-roads"><path d="M75 140L1015 550M50 535L1025 80M290 20l22 610M820 15L710 625"/></g>
+                  <g class="river-system"><path d="M-50 410C160 330 262 470 430 397S717 255 848 318s247 52 322-24"/><path d="M550-45c-7 156 31 244 88 344s38 228 91 400"/></g>
+                  <g class="bridge-lines"><path d="M432 351l45 93M604 269l56 101M733 290l58 93"/></g>
+                  <g class="district-labels"><text x="175" y="172">汉口</text><text x="230" y="470">汉阳区</text><text x="700" y="210">青山区</text><text x="665" y="430">武昌区</text><text x="805" y="535">洪山区</text></g>
+                  <g class="road-labels"><text x="250" y="100" transform="rotate(23 250 100)">沿江大道</text><text x="800" y="150" transform="rotate(-28 800 150)">友谊大道</text><text x="496" y="520">中山路</text><text x="680" y="330" transform="rotate(65 680 330)">长江大桥</text></g>
+                  <g class="site-svg-pin" transform="translate(714 424)"><circle r="31"/><circle r="16"/><path d="M0-8l8 7-3 10H-5L-8-1z"/></g>
+                  <g class="city-compass-svg" transform="translate(1015 72)"><circle r="31"/><path d="M0-22L7 5 0 0-7 5z"/><text y="-36">N</text></g>
+                  <g class="scale-svg" transform="translate(875 595)"><path d="M0 0h120M0-6v12M60-4v8M120-6v12"/><text x="38" y="20">5 km</text></g>
+                </svg>
+                <div class="static-map-badge"><span>WUHAN · PROJECT INDEX</span><strong>武汉项目分布示意图</strong></div>
+              </div>
               <button class="map-overlay-card site-location" id="openSite"><span class="location-beacon"><i></i></span><div><small>武昌区 · 项目坐标</small><strong>九万里人才基地</strong><em>24 台设备 · 8 台在线</em></div><b>查看楼宇 →</b></button>
               <div class="coordinate-card"><span>当前视图中心</span><strong>30.5440°N, 114.3160°E</strong><small>WGS 84 · 城市级视图</small></div>
             </div>
@@ -199,19 +233,7 @@
       </div>
     </div>
 
-    <div class="modal" id="mapConfigModal" aria-hidden="true">
-      <div class="modal-card">
-        <button class="modal-close" data-close="mapConfigModal">×</button>
-        <span class="eyebrow">TIANDITU CONFIGURATION</span><h2>配置天地图</h2>
-        <p class="modal-lead">填写在天地图开发者控制台申请的浏览器端 Token。Token 仅保存在当前浏览器。</p>
-        <label class="field"><span>浏览器端 Token</span><input id="tiandituToken" autocomplete="off" placeholder="请输入天地图 Token" /></label>
-        <div class="tts-notice"><span>i</span><p><strong>应用要求</strong> 请确保 Token 已启用；如果设置了域名限制，需要允许当前域名。直接打开本地 HTML 也会尝试加载，若平台拒绝 file://，再改用 localhost。</p></div>
-        <div class="modal-actions"><button class="secondary-btn" data-close="mapConfigModal">取消</button><button class="primary-btn" id="saveMapConfig">保存并重新载入</button></div>
-      </div>
-    </div>
-
     <div class="toast" id="toast"><span>✓</span><div><strong>操作成功</strong><p></p></div></div>
-    <script src="tianditu-map-config.js"></script>
     <script src="app.js"></script>
   </body>
 </html>
